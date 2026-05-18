@@ -59,7 +59,47 @@ The following components are used in this project:
 ---
 
 ## Block Diagram
-<img width="608" height="346" alt="Screenshot 2026-05-18 153309" src="https://github.com/user-attachments/assets/ec1e9558-00e0-43d9-9e15-4897ecab23ff" />
+## System Architecture
+
+```text
+                     +------------------+
+                     |   DHT11 Sensor   |
+                     +------------------+
+                              |
+                              |
+                     +------------------+
+                     | Soil Moisture    |
+                     |     Sensor       |
+                     +------------------+
+                              |
+                              v
+                  +--------------------------+
+                  |   LPC2148 Microcontroller |
+                  +--------------------------+
+                     |         |          |
+                     |         |          |
+                     v         v          v
+              +---------+  +--------+  +--------+
+              |   LCD   |  | ESP01  |  | Keypad |
+              +---------+  | Wi-Fi  |  +--------+
+                           +--------+
+                               |
+                               v
+                        +---------------+
+                        | ThingSpeak    |
+                        |    Cloud      |
+                        +---------------+
+                               |
+                               v
+                        +---------------+
+                        |    Relay      |
+                        +---------------+
+                               |
+                               v
+                        +---------------+
+                        | Water Motor   |
+                        +---------------+
+```
 
 
 ---
