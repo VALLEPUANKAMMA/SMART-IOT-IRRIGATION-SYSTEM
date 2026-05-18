@@ -193,6 +193,67 @@ After successful UART communication with ESP01, the system uploads the following
 
 This allows remote monitoring of the irrigation system over the internet.
 
+## Project Images
+
+### 1. System Block Diagram
+
+This block diagram illustrates the detailed hardware modules and their interconnections, including DHT11, soil moisture sensor, RTC, LCD, keypad, ESP01, relay, and motor.
+
+<img width="608" height="346" alt="Screenshot 2026-05-18 153309" src="https://github.com/user-attachments/assets/5b0164cf-9dc1-40ea-9cea-2340c369b3e4" />
+
+
+---
+
+### 2. Hardware Setup
+
+This image shows the actual hardware implementation of the Smart IoT Irrigation System with all connected peripherals and modules.
+
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/5a05d561-11e2-4295-9913-0f2af33ff9bd" />
+
+
+---
+
+### 3. LCD Output
+
+This image shows the LCD displaying real-time humidity, temperature, and checksum values read from the DHT11 sensor.
+
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/f38f6ac9-c0d7-48f3-aed3-93199be6ba3c" />
+
+
+---
+
+### 4. ThingSpeak Cloud Output
+
+#### Temperature Monitoring Chart
+
+This chart shows the real-time **temperature data** uploaded from the DHT11 sensor to the ThingSpeak cloud platform.
+
+<img width="593" height="410" alt="Screenshot 2026-05-18 163848" src="https://github.com/user-attachments/assets/608ad6a2-44ae-4251-b718-31c0727b9c64" />
+
+---
+
+#### Humidity Monitoring Chart
+
+This chart shows the real-time **humidity data** uploaded from the DHT11 sensor to the ThingSpeak cloud platform.
+
+<img width="590" height="406" alt="Screenshot 2026-05-18 163903" src="https://github.com/user-attachments/assets/69dc44f4-6baf-4c13-9904-13bb0948cd8b" />
+
+
+---
+
+#### Motor ON/OFF Status Chart
+
+This chart shows the irrigation motor operating status uploaded to the ThingSpeak cloud platform.
+
+- **1** → Motor **ON**
+- **0** → Motor **OFF**
+
+The motor status changes based on **soil moisture conditions** and **user-defined irrigation settings**, allowing remote monitoring of irrigation activity.
+
+<img width="602" height="415" alt="Screenshot 2026-05-18 163914" src="https://github.com/user-attachments/assets/47a6979e-9fe1-4c6d-8a9a-1f56a425012a" />
+
+
+---
 ## How to Run the Project
 
 ### 1. Create Project Folder
