@@ -58,7 +58,7 @@ The following components are used in this project:
 
 ---
 
-## System Architecture
+## Block Diagram
 <img width="608" height="346" alt="Screenshot 2026-05-18 153309" src="https://github.com/user-attachments/assets/ec1e9558-00e0-43d9-9e15-4897ecab23ff" />
 
 
