@@ -59,17 +59,8 @@ The following components are used in this project:
 ---
 
 ## System Architecture
+<img width="608" height="346" alt="Screenshot 2026-05-18 153309" src="https://github.com/user-attachments/assets/ec1e9558-00e0-43d9-9e15-4897ecab23ff" />
 
-```text
-DHT11 Sensor ──┐
-               │
-Soil Moisture ─┼──> LPC2148 Microcontroller ──> LCD Display
-               │
-               └──> ESP01 Wi-Fi Module ──> ThingSpeak Cloud
-
-                         |
-                         └──> Water Pump / LED Control
-```
 
 ---
 
