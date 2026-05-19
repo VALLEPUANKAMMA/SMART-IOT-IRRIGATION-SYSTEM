@@ -224,7 +224,21 @@ This image shows the LCD displaying real-time humidity, temperature, and checksu
 
 ---
 
-### ☁️ 4. ThingSpeak Cloud Output
+### 📟 4. LCD Menu Navigation (Interrupt-Based)
+
+This image shows the LCD returning to the **main menu** after pressing the external interrupt button.  
+The interrupt allows the user to switch between **Irrigation Time Setting** and **Temperature & Humidity Monitoring** without restarting the system.
+
+**LCD Menu Options:**
+- **1. Set Irrigation Time**
+- **2.  Temp & Humidity**
+
+<img width="1448" height="1086" alt="image" src="https://github.com/user-attachments/assets/cc91d2a1-ecf2-4683-9775-a48913385269" />
+
+
+---
+
+### ☁️ 5. ThingSpeak Cloud Output
 
 #### 🌡️ Temperature Monitoring Chart
 
