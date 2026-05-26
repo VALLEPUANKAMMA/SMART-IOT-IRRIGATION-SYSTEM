@@ -1,343 +1,254 @@
+/* Include LPC214x microcontroller register definitions */
 #include <lpc214x.h>				
 
+/* Include UART0 function declarations */
 #include "uart0.h"
 
+/* Include delay function declarations */
 #include "delay.h"
 
+/* Include LCD function declarations */
 #include "lcd.h"
 
+/* Include ESP01 Wi-Fi module function declarations */
 #include "esp01.h"
 
+/* Include DHT11 sensor function declarations */
 #include "dht11.h"
 
+/* Include keypad function declarations */
 #include "kpm.h"
 
+
+/* Define crystal oscillator frequency as 12 MHz */
 #define FOSC      12000000
 
+/* Define CPU clock frequency as 5 × oscillator frequency */
 #define CCLK  	  5*FOSC
 
+/* Define peripheral clock frequency as CPU clock / 4 */
 #define PCLK  	  CCLK/4
 
+/* Calculate RTC integer prescaler value */
 #define PREINT_VAL  ((PCLK/32768)-1)
 
+/* Calculate RTC fractional prescaler value */
 #define PREFRAC_VAL  (PCLK - ((PREINT_VAL + 1) * 32768))
 
- 
 
+/* Function to initialize RTC time */
 void rtc_init()
 {
+	/* Initialize seconds register with 20 */
+	SEC = 20;
 
-	SEC=20; //Initialized seconds
+	/* Initialize minutes register with 21 */
+	MIN = 21;
 
-	MIN=21; //Initialized minutes
-
-	HOUR=12;//Initialized hour
-
+	/* Initialize hours register with 12 */
+	HOUR = 12;
 }
 
-extern char buff[100],dummy;
 
-extern unsigned char i,ch,r_flag;
+/* External UART receive buffer */
+extern char buff[100];
 
-char I_t1,I_t2,I_t3;//Iregation timings	are 1 min / 2 min / 3 min
-//char S_t1,S_t2;	//soil readings
- char T_t1,H_t1,T_t2,H_t2,T_t3,H_t3; // Temprature and Humidity timings
+/* External dummy variable */
+extern char dummy;
+
+/* External UART receive index */
+extern unsigned char i;
+
+/* External received character */
+extern unsigned char ch;
+
+/* External UART receive flag */
+extern unsigned char r_flag;
+
+
+/* Irrigation timing variables
+   Stores motor ON duration for different conditions */
+char I_t1, I_t2, I_t3;
+
+/* Temperature and humidity threshold variables */
+char T_t1, H_t1;
+char T_t2, H_t2;
+char T_t3, H_t3;
+
+/* External interrupt flag */
 extern volatile int flag;
 
-unsigned char humidity_integer, humidity_decimal, temp_integer, temp_decimal, checksum;
-   
-extern int humidity,temperature;
 
-  /*InitUART0();
+/* Variables to store DHT11 humidity data */
+unsigned char humidity_integer;
+unsigned char humidity_decimal;
 
-	LCD_Init();
+/* Variables to store DHT11 temperature data */
+unsigned char temp_integer;
+unsigned char temp_decimal;
 
-	PREINT=PREINT_VAL;
+/* Variable to store DHT11 checksum */
+unsigned char checksum;
 
-  PREFRAC=PREFRAC_VAL;
+/* Final humidity and temperature values */
+extern int humidity;
+extern int temperature;
 
-   CCR=0x01; //timer started
 
-   rtc_init();
+/* Flags to check if settings are configured */
+int flag1 = 0;
+int flag2 = 0;
 
-	Write_CMD_LCD(0x80);
 
-	Write_str_LCD("ESP01 Interface");
-                                                                                                               
-  delay_ms(1000);
-  
-  esp01_connectAP();
-   */
-
-/*void dht11_display(void)
-{
-
-		dht11_request();
-
-		dht11_response();
-
-		humidity_integer = dht11_data();
-
-		humidity_decimal = dht11_data();
-
-		temp_integer = dht11_data();
-
-		temp_decimal = dht11_data();
-
-		checksum = dht11_data();
-
-		humidity=humidity_integer+humidity_decimal;
-
-		temperature=temp_integer+temp_decimal;
-
-		if( (humidity_integer + humidity_decimal + temp_integer + temp_decimal) != checksum )
-		  {
-			Write_str_LCD("Checksum Error\r\n");
-		   }
-		else
-		{
-		   	//Write_DAT_LCD('.');
-
-			Write_CMD_LCD(0x80);
-
-			Write_str_LCD("H : ");
-
-			Write_int_LCD(humidity_integer);
-
-			Write_DAT_LCD('.');
-
-			Write_int_LCD(humidity_decimal);
-
-			Write_str_LCD(" % RH ");
-
-			Write_CMD_LCD(0xC0);
-
-			Write_str_LCD("T : ");
-
-			Write_int_LCD(temp_integer);
-
-			Write_DAT_LCD('.');
-
-			Write_int_LCD(temp_decimal);
-
-			Write_DAT_LCD(223);
-
-			Write_str_LCD("C");
-
-			Write_CMD_LCD(0xD4);
-
-			Write_str_LCD("Checksum : ");
-
-			Write_int_LCD(checksum);
-
-			delay_ms(3000);
-
-			//Write_CMD_LCD(0x01);
-			//arr[0]=humidity_integer;
-
-			//arr[1]=temp_integer;
-
-			esp01_sendToThingspeak1(humidity);
-			
-			delay_s(16);
-
-			esp01_sendToThingspeak2(temperature);
-			
-			delay_s(16);
-			}
-} */
-int flag1=0,flag2=0;
+/* Function to configure irrigation timings */
 void SetIrrigationTiming(void)
 {
-int val;
-flag1=1;
-    
-
-    Write_CMD_LCD(0x01);
-    
-    Write_str_LCD("Set Motor Time");
-    
-    delay_ms(800);
-    
-    val = Get1DigitValue("Enter HighTem LowHum:");
-    
-	    if(val != -1) I_t1 = val;
-
-		Write_CMD_LCD(0x01);
-
-    val = Get1DigitValue("Enter ModTem ModHum:");
-    
-    if(val != -1) I_t2 = val;
-
-		Write_CMD_LCD(0x01);
-
-
-    val = Get1DigitValue("Enter LowTemp HighHum:");
-    
-    if(val != -1) I_t3 = val;
-
-    Write_CMD_LCD(0x01);
-
-    Write_CMD_LCD(0x80);
-    
-    Write_str_LCD("Saved Successfully");
-    
-    delay_ms(1000);
-    
-    Write_CMD_LCD(0X01);
-}
-
-
-/* void SetMoisture_Threshold(void)
-{
+    /* Local variable to store keypad input */
     int val;
 
+    /* Set irrigation timing configured flag */
+    flag1 = 1;
+
+    /* Clear LCD display */
     Write_CMD_LCD(0x01);
-    Write_str_LCD("Set Moisture");
+
+    /* Display heading */
+    Write_str_LCD("Set Motor Time");
+
+    /* Delay for readability */
     delay_ms(800);
 
-    val = Get2DigitValue("Dry Threshold:");
-    if(val != -1) S_t1 = val;
+    /* Ask user for high temp / low humidity motor time */
+    val = Get1DigitValue("Enter HighTem LowHum:");
 
-    val = Get2DigitValue("Wet Threshold:");
-    if(val != -1) S_t2 = val;
+    /* If user entered valid value, store in I_t1 */
+    if(val != -1)
+        I_t1 = val;
 
+    /* Clear LCD */
     Write_CMD_LCD(0x01);
-    Write_str_LCD("Saved");
+
+    /* Ask user for moderate temp / moderate humidity time */
+    val = Get1DigitValue("Enter ModTem ModHum:");
+
+    /* Store if valid */
+    if(val != -1)
+        I_t2 = val;
+
+    /* Clear LCD */
+    Write_CMD_LCD(0x01);
+
+    /* Ask user for low temp / high humidity time */
+    val = Get1DigitValue("Enter LowTemp HighHum:");
+
+    /* Store if valid */
+    if(val != -1)
+        I_t3 = val;
+
+    /* Clear LCD */
+    Write_CMD_LCD(0x01);
+
+    /* Move cursor to first row */
+    Write_CMD_LCD(0x80);
+
+    /* Show success message */
+    Write_str_LCD("Saved Successfully");
+
+    /* Wait for 1 second */
     delay_ms(1000);
-}  */
+
+    /* Clear LCD */
+    Write_CMD_LCD(0x01);
+}
 
 
+/* Function to configure temperature and humidity thresholds */
 void Set_Temp_Humidity(void)
 {
-	int val;
-	flag2=1;
-    
+    /* Local variable to store keypad input */
+    int val;
 
+    /* Set threshold configured flag */
+    flag2 = 1;
+
+    /* Clear LCD */
     Write_CMD_LCD(0x01);
+
+    /* Show heading */
     Write_str_LCD("Set Temp & Hum");
+
+    /* Delay for readability */
     delay_ms(800);
 
+    /* Show valid temperature range */
+    Write_str_LCD("Temp Range (0-50)");
 
-	Write_str_LCD("Temp Range (0-50)");
-
+    /* Read first temperature threshold */
     val = Get2DigitValue("ENTER TEMPRATURE1:");
-    if(val != -1) T_t1 = val;
 
-    Write_str_LCD("Humrange is (0-99)");
-	val = Get2DigitValue("ENTER HUMIDITY1:");
-    if(val != -1) H_t1 = val;
+    /* Store if valid */
+    if(val != -1)
+        T_t1 = val;
 
+    /* Show humidity range */
+    Write_str_LCD("Hum range (0-99)");
 
- Write_str_LCD("Temp Range (0-50)");
+    /* Read first humidity threshold */
+    val = Get2DigitValue("ENTER HUMIDITY1:");
+
+    /* Store if valid */
+    if(val != -1)
+        H_t1 = val;
+
+    /* Show temperature range again */
+    Write_str_LCD("Temp Range (0-50)");
+
+    /* Read second temperature threshold */
     val = Get2DigitValue("ENTER TEMPRATURE2:");
-    if(val != -1) T_t2 = val;
 
-	Write_str_LCD("Humrange is (0-100)");
+    /* Store if valid */
+    if(val != -1)
+        T_t2 = val;
+
+    /* Show humidity range */
+    Write_str_LCD("Hum range (0-100)");
+
+    /* Read second humidity threshold */
     val = Get2DigitValue("ENTER HUMIDITY2:");
-    if(val != -1) H_t2 = val;
 
+    /* Store if valid */
+    if(val != -1)
+        H_t2 = val;
 
- Write_str_LCD("Temp Range (0-50)");
+    /* Show temperature range */
+    Write_str_LCD("Temp Range (0-50)");
+
+    /* Read third temperature threshold */
     val = Get2DigitValue("ENTER TEMPRATURE3:");
-    if(val != -1) T_t3 = val;
 
-	Write_str_LCD("Humrange is (0-100)");
+    /* Store if valid */
+    if(val != -1)
+        T_t3 = val;
+
+    /* Show humidity range */
+    Write_str_LCD("Hum range (0-100)");
+
+    /* Read third humidity threshold */
     val = Get2DigitValue("ENTER HUMIDITY3:");
-    if(val != -1) H_t3 = val;
 
+    /* Store if valid */
+    if(val != -1)
+        H_t3 = val;
+
+    /* Clear LCD */
     Write_CMD_LCD(0x01);
+
+    /* Show saved confirmation */
     Write_str_LCD("Saved");
+
+    /* Delay */
     delay_ms(1000);
-    Write_CMD_LCD(0X01);
-}
 
-
-
-void menu_base_int(void)
-{	 char ch;
-    if(flag == 1)
-    {
-        
-		flag = 0;
-        Write_CMD_LCD(0x01);
-        Write_CMD_LCD(0x80);
-        Write_str_LCD("1.Irrigation Time");
-        Write_CMD_LCD(0xC0);
-        //Write_str_LCD("2.Moisture Thresh");
-        //Write_CMD_LCD(0x94);
-        Write_str_LCD("3.Temp & Humidity");
-        Write_CMD_LCD(0xD4);
-        Write_str_LCD("Select Option:");
-	ch = keyScan();
-        switch(ch)
-        {
-            case '1': SetIrrigationTiming(); break;
-            //case '2': SetMoisture_Threshold(); break;
-            case '3': Set_Temp_Humidity(); break;
-            default:
-                Write_CMD_LCD(0x01);
-                Write_str_LCD("Invalid Option");
-                delay_ms(1000);
-        }
-    }
-}
-
-void compare_temp_hum(void)
-{
-int delay_time;
- if((flag1==1) && (flag2==1))
-{
-delay_time=0;
-	//flag1=0;
-  
-
-// Check soil moisture first
-if ((IOPIN0 >> 21) & 1)
-{
-int cnt=0;
-    if ((temperature >= T_t1) && (humidity <= H_t1))
-        delay_time = I_t1;
-
-    else if ((temperature >= T_t2) && (humidity >= H_t2))
-        delay_time = I_t2;
-
-    else if ((temperature <= T_t3) && (humidity <= H_t3))
-        delay_time = I_t3;
-
-    // If any condition matched
-    if (delay_time > 0)
-    {
-        Write_CMD_LCD(0x01);
-        Write_str_LCD("MOTOR TURN ON");
-
-        IOSET0 = 1 << 20;   // Motor ON
-        esp01_sendToThingspeak3(1);
-				
-				while(1)
-				{
-
-        //delay_s(60 * delay_time);
-
-				cnt++;
-
-				delay_s(1);
-				if((cnt==(delay_time*60)) || ((IOPIN0 >> 21) & 1)==0)
-				{
-				break;
-				}
-
-				}
-				IOCLR0 = 1 << 20;   // Motor OFF
-        
-				Write_CMD_LCD(0x01);
-
-				
-				esp01_sendToThingspeak3(0);
-        
-
-        
-    }
-}
-}
+    /* Clear LCD */
+    Write_CMD_LCD(0x01);
 }
