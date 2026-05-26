@@ -252,3 +252,67 @@ void Set_Temp_Humidity(void)
     /* Clear LCD */
     Write_CMD_LCD(0x01);
 }
+void menu_base_int(void)
+{
+    char ch;  /* Variable to store keypad input character */
+
+    if(flag == 1)
+    {
+        /* Check if menu should be displayed
+           flag = 1 means show menu once */
+
+        flag = 0;  /* Reset flag to avoid repeated menu refresh */
+
+        Write_CMD_LCD(0x01);
+        /* Clear LCD display screen */
+
+        Write_CMD_LCD(0x80);
+        /* Set cursor to first row, first column */
+
+        Write_str_LCD("1.Irrigation Time");
+        /* Display option 1 on LCD */
+
+        Write_CMD_LCD(0xC0);
+        /* Move cursor to second line */
+
+        Write_str_LCD("3.Temp & Humidity");
+        /* Display option 3 on LCD */
+
+        Write_CMD_LCD(0xD4);
+        /* Move cursor to next line (depending on LCD type) */
+
+        Write_str_LCD("Select Option:");
+        /* Prompt user to select a menu option */
+
+        ch = keyScan();
+        /* Read input character from keypad */
+
+        switch(ch)
+        {
+            /* Evaluate user selection */
+
+            case '1':
+                /* Option 1 selected: Irrigation timing setup */
+                SetIrrigationTiming();
+                /* Call irrigation timing configuration function */
+                break;
+
+            case '3':
+                /* Option 3 selected: Temperature & humidity settings */
+                Set_Temp_Humidity();
+                /* Call sensor configuration function */
+                break;
+
+            default:
+                /* Invalid input handling */
+                Write_CMD_LCD(0x01);
+                /* Clear LCD */
+
+                Write_str_LCD("Invalid Option");
+                /* Display error message */
+
+                delay_ms(1000);
+                /* Wait for 1 second before returning */
+        }
+    }
+}
