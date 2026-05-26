@@ -40,3 +40,20 @@ void rtc_init(void);
  - Motor status is updated to ThingSpeak
 */
 void compare_temp_hum(void);
+/*
+ Function declaration for main menu display and selection handler
+
+ This function displays the main menu on the LCD screen
+ for the IoT-based irrigation and monitoring system.
+
+ It allows the user to select different system modes such as:
+ - Irrigation timing configuration
+ - Temperature and humidity monitoring system
+
+ Based on keypad input, it calls the corresponding function
+ and executes the selected operation.
+
+ It ensures that the menu is displayed only once using a flag
+ to avoid repeated LCD refresh.
+*/
+void menu_base_int(void);
