@@ -62,7 +62,8 @@ The following components are used in this project:
 
 ## 🏗️ System Architecture
 
-<img width="1196" height="1315" alt="image" src="https://github.com/user-attachments/assets/245f0250-22bf-4463-a005-6e9454a7f0ac" />
+<img width="1181" height="1331" alt="image" src="https://github.com/user-attachments/assets/950194c3-8ad0-4c4b-8955-120cc4629773" />
+
 
 
 ---
