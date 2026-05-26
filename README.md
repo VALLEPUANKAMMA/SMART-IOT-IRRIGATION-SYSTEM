@@ -14,9 +14,8 @@ The main aim of this project is to monitor the irrigation system over IoT by rea
 - Temperature
 - Relative Humidity
 - Soil Moisture
-
-
 The collected data is sent to **ThingSpeak Cloud**, and the irrigation motor is automatically controlled based on **soil moisture conditions and user-defined irrigation settings**.
+
 ---
 
 ## ✨ Features
@@ -56,7 +55,7 @@ The following components are used in this project:
 
 - **Keil C Compiler**
 - **Embedded C Programming**
-- **Flash Magic** :contentReference[oaicite:2]{index=2}
+- **Flash Magic** 
 
 ---
 
