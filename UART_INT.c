@@ -1,121 +1,216 @@
-#include <LPC21xx.H>  /* LPC21xx definitions         */
-#include <string.h>
+#include <LPC21xx.H>  
+/* Include LPC21xx register definitions */
 
-#define UART_INT_ENABLE 1
+#include <string.h>   
+/* Include string handling library */
 
-void InitUART0 (void); /* Initialize Serial Interface       */ 
-void UART0_Tx(char ch);  
-char UART0_Rx(void);    
+#define UART_INT_ENABLE 1  
+/* Enable UART interrupt functionality */
 
-char buff[10],dummy;
-unsigned char i=0,ch,r_flag;
 
+/* Function declaration for UART initialization */
+void InitUART0(void);
+
+/* Function declaration for UART transmit */
+void UART0_Tx(char ch);
+
+/* Function declaration for UART receive */
+char UART0_Rx(void);
+
+
+/* Buffer to store received UART data */
+/* Dummy variable used to clear interrupt */
+char buff[10], dummy;
+
+/* i = buffer index */
+/* ch = received character */
+/* r_flag = receive flag */
+unsigned char i=0, ch, r_flag;
+
+
+/* UART0 Interrupt Service Routine */
 void UART0_isr(void) __irq
 {
+    /* Check if receive interrupt occurred */
+    if((U0IIR & 0x04))
+    {
+        /* Read received character and clear interrupt */
+        ch = U0RBR;
 
-  if((U0IIR & 0x04)) //check if receive interrupt
-  {
+        /* Check buffer limit before storing */
+        if(i < 200)
+        {
+            /* Store character and increment index */
+            buff[i++] = ch;
+        }
+    }
+    else
+    {
+        /* Read interrupt register to clear transmit interrupt */
+        dummy = U0IIR;
+    }
 
-		ch = U0RBR;	/* Read to Clear Receive Interrupt */
-
-		if(i<200)
-
-			buff[i++] = ch; 
-
-  }
-
-  else
-  {
-
-      dummy=U0IIR; //Read to Clear transmit interrupt
-
-  
-
-  }
-
-   VICVectAddr = 0; /* dummy write */
-
-}
-void InitUART0 (void) /* Initialize Serial Interface       */ 
-{  
-            		
-  PINSEL0 = 0x00000005; /* Enable RxD0 and TxD0              */
-  U0LCR = 0x83;         /* 8 bits, no Parity, 1 Stop bit     */
-  U0DLL = 97;           /* 9600 Baud Rate @ CCLK/4 VPB Clock  */
-  U0LCR = 0x03;         /* DLAB = 0  */
-  
-  #if UART_INT_ENABLE > 0
-
-  VICIntSelect = 0x00000000; // IRQ
-  VICVectAddr0 = (unsigned)UART0_isr;
-  VICVectCntl0 = 0x20 | 6; /* UART0 Interrupt */
-  VICIntEnable = 1 << 6;   /* Enable UART0 Interrupt */
- 
- // U0IIR = 0xc0;
- // U0FCR = 0xc7;
-  U0IER = 0x03;       /* Enable UART0 RX and THRE Interrupts */   
-             
-  #endif
-						
+    /* Notify interrupt controller that ISR is complete */
+    VICVectAddr = 0;
 }
 
-void UART0_Tx(char ch)  /* Write character to Serial Port    */  
-{ 
-  while (!(U0LSR & 0x20));
-  U0THR = ch;                
+
+/* UART0 Initialization Function */
+void InitUART0(void)
+{
+    /* Configure P0.0 as TXD0 and P0.1 as RXD0 */
+    PINSEL0 = 0x00000005;
+
+    /* Configure UART:
+       8-bit data
+       No parity
+       1 stop bit
+       Enable DLAB */
+    U0LCR = 0x83;
+
+    /* Set baud rate for 9600 */
+    U0DLL = 97;
+
+    /* Disable DLAB after baud configuration */
+    U0LCR = 0x03;
+
+#if UART_INT_ENABLE > 0
+
+    /* Select IRQ mode */
+    VICIntSelect = 0x00000000;
+
+    /* Assign UART ISR address */
+    VICVectAddr0 = (unsigned)UART0_isr;
+
+    /* Enable UART0 interrupt slot */
+    VICVectCntl0 = 0x20 | 6;
+
+    /* Enable UART0 interrupt in VIC */
+    VICIntEnable = 1 << 6;
+
+    /* Enable UART receive and transmit interrupts */
+    U0IER = 0x03;
+
+#endif
 }
 
-char UART0_Rx(void)    /* Read character from Serial Port   */
-{                     
-  while (!(U0LSR & 0x01));
-  return (U0RBR);
+
+/* UART Character Transmit Function */
+void UART0_Tx(char ch)
+{
+    /* Wait until transmit holding register is empty */
+    while (!(U0LSR & 0x20));
+
+    /* Load character into transmit register */
+    U0THR = ch;
 }
 
+
+/* UART Character Receive Function */
+char UART0_Rx(void)
+{
+    /* Wait until data is received */
+    while (!(U0LSR & 0x01));
+
+    /* Return received character */
+    return (U0RBR);
+}
+
+
+/* UART String Transmit Function */
 void UART0_Str(char *s)
 {
-   while(*s)
-       UART0_Tx(*s++);
+    /* Loop until null character is found */
+    while(*s)
+    {
+        /* Send each character */
+        UART0_Tx(*s++);
+    }
 }
 
+
+/* UART Integer Transmit Function */
 void UART0_Int(unsigned int n)
 {
-  unsigned char a[10]={0,0,0,0,0,0,0,0,0,0};
-  int i=0;
-  if(n==0)
-  {
-    UART0_Tx('0');
-	return;
-  }
-  else
-  {
-     while(n>0)
-	 {
-	   a[i++]=(n%10)+48;
-	   n=n/10;
-	 }
-	 --i;
-	 for(;i>=0;i--)
-	 {
-	   UART0_Tx(a[i]);
-	 }
-   }
+    /* Array to store extracted digits */
+    unsigned char a[10]={0};
+
+    /* Local index variable */
+    int i=0;
+
+    /* Check if number is zero */
+    if(n==0)
+    {
+        /* Send zero */
+        UART0_Tx('0');
+
+        /* Exit function */
+        return;
+    }
+    else
+    {
+        /* Extract digits one by one */
+        while(n>0)
+        {
+            /* Convert digit to ASCII and store */
+            a[i++] = (n%10)+48;
+
+            /* Remove last digit */
+            n = n/10;
+        }
+
+        /* Adjust index to last valid digit */
+        --i;
+
+        /* Send digits in correct order */
+        for(; i>=0; i--)
+        {
+            /* Transmit digit */
+            UART0_Tx(a[i]);
+        }
+    }
 }
 
+
+/* UART Float Transmit Function */
 void UART0_Float(float f)
 {
-  int x;
-  float temp;
-  x=f;
-  UART0_Int(x);
-  UART0_Tx('.');
-  temp=(f-x)*100;
-  x=temp;
-  UART0_Int(x);
+    /* Variable for integer part */
+    int x;
+
+    /* Variable for decimal part */
+    float temp;
+
+    /* Extract integer part */
+    x = f;
+
+    /* Send integer part */
+    UART0_Int(x);
+
+    /* Send decimal point */
+    UART0_Tx('.');
+
+    /* Extract first two decimal digits */
+    temp = (f-x)*100;
+
+    /* Convert decimal part to integer */
+    x = temp;
+
+    /* Send decimal part */
+    UART0_Int(x);
 }
 
-void  DelayS(unsigned int  dly)
-{  unsigned int  i;
 
-   for(; dly>0; dly--) 
-      for(i=1200000; i>0; i--);
-}						
+/* Delay Function */
+void DelayS(unsigned int dly)
+{
+    /* Loop variable */
+    unsigned int i;
+
+    /* Outer loop for delay count */
+    for(; dly>0; dly--)
+    {
+        /* Inner loop for actual delay */
+        for(i=1200000; i>0; i--);
+    }
+}
