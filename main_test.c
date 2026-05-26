@@ -1,9 +1,9 @@
-###/*
+/*
  Project : Smart IoT Irrigation System
  MCU     : LPC2148 (ARM7)
  Author  : Ankamma Vallepu
  Platform: Embedded C (Keil / LPC21xx)
-*/ ###
+*/ 
 
 
 /*
