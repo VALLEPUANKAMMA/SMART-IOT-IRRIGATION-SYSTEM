@@ -210,7 +210,8 @@ This block diagram illustrates the detailed hardware modules and their interconn
 
 This image shows the actual hardware implementation of the Smart IoT Irrigation System with all connected peripherals and modules.
 
-<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/5a05d561-11e2-4295-9913-0f2af33ff9bd" />
+<img width="1280" height="960" alt="image" src="https://github.com/user-attachments/assets/2f26a454-bf60-4503-8c78-696bbf2c0dba" />
+
 
 
 ---
